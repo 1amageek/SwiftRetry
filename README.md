@@ -17,7 +17,7 @@ Add the Retry utility to your Swift package or project:
 
 ```swift
 dependencies: [
-    .package(url: "your-repository-url", from: "1.0.0")
+    .package(url: "[your-repository-url](https://github.com/1amageek/SwiftRetry.git)", from: "1.0.0")
 ]
 ```
 
