@@ -42,28 +42,22 @@ public struct Retry {
         /// Logger for retry operations
         public let logger: Logger?
         
-        /// Whether to log retry attempts
-        public let enableLogging: Bool
-        
         /// Creates a new configuration with the specified parameters.
         /// - Parameters:
         ///   - maxAttempts: Maximum number of retry attempts (default: 3)
         ///   - delay: Delay between retry attempts in seconds (default: nil)
         ///   - backoffStrategy: Strategy for calculating delay between retries (default: nil)
         ///   - logger: Logger for retry operations (default: nil)
-        ///   - enableLogging: Whether to log retry attempts (default: true)
         public init(
             maxAttempts: Int = 3,
             delay: TimeInterval? = nil,
             backoffStrategy: BackoffStrategy? = nil,
-            logger: Logger? = nil,
-            enableLogging: Bool = true
+            logger: Logger? = nil
         ) {
             self.maxAttempts = maxAttempts
             self.delay = delay
             self.backoffStrategy = backoffStrategy
             self.logger = logger
-            self.enableLogging = enableLogging
         }
         
         /// Default configuration with 3 attempts and no delay
@@ -77,8 +71,7 @@ public struct Retry {
                 maxAttempts: self.maxAttempts,
                 delay: self.delay,
                 backoffStrategy: self.backoffStrategy,
-                logger: logger,
-                enableLogging: self.enableLogging
+                logger: logger
             )
         }
     }
@@ -156,13 +149,11 @@ public struct Retry {
             } catch {
                 lastError = error
                 
-                if configuration.enableLogging {
-                    configuration.logger?.warning("Retry attempt failed", metadata: [
-                        "attempt": .string("\(attempt)"),
-                        "maxAttempts": .string("\(configuration.maxAttempts)"),
-                        "error": .string(error.localizedDescription)
-                    ])
-                }
+                configuration.logger?.warning("Retry attempt failed", metadata: [
+                    "attempt": .string("\(attempt)"),
+                    "maxAttempts": .string("\(configuration.maxAttempts)"),
+                    "error": .string(error.localizedDescription)
+                ])
                 
                 if attempt < configuration.maxAttempts {
                     // Apply delay if configured
@@ -178,13 +169,11 @@ public struct Retry {
                     continue
                 }
                 
-                if configuration.enableLogging {
-                    configuration.logger?.error("Max retry attempts exceeded", metadata: [
-                        "attempts": .string("\(attempt)"),
-                        "maxAttempts": .string("\(configuration.maxAttempts)"),
-                        "finalError": .string(error.localizedDescription)
-                    ])
-                }
+                configuration.logger?.error("Max retry attempts exceeded", metadata: [
+                    "attempts": .string("\(attempt)"),
+                    "maxAttempts": .string("\(configuration.maxAttempts)"),
+                    "finalError": .string(error.localizedDescription)
+                ])
                 
                 throw Error(
                     attempts: attempt,
